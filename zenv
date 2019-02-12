@@ -1,0 +1,77 @@
+#!/bin/sh
+
+#=================安装=======================
+#脚本方式安装
+funInstall(){
+    #echo $1
+    #echo $2
+    if command -v $1 >/dev/null 2>&1 ; then
+        echo "Has installed $1"
+    else
+        echo "To install $1"
+        sh -c $2
+    fi
+}
+
+#Brew方式安装
+funBrewInstall(){
+    #echo $1
+    #echo $2
+    if command -v $1 >/dev/null 2>&1 ; then
+        echo "Has installed $1"
+    else
+        echo "To install $1"
+        if command -v brew >/dev/null 2>&1 ; then
+            brew install $1
+        fi
+    fi
+
+    if [ "$3" -eq "1" ] ; then
+        echo "Force install $1"
+        brew install $1
+    fi
+}
+
+#SdkMan
+cli_command="sdk"
+cli_install="curl -s https://get.sdkman.io"
+funInstall $cli_command $cli_install
+#LinuxBrew
+cli_command="brew"
+cli_install="curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh"
+funInstall $cli_command $cli_install
+#Zsh
+cli_commond="zsh"
+funBrewInstall $cli_commond 1
+#Oh-my-zsh
+if [ -d "$HOME/.oh-my-zsh" ] ; then
+    echo "Has installed oh-my-zsh"
+else 
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+fi
+#vim
+cli_commond="vim"
+funBrewInstall $cli_commond 1
+#rg 
+cli_commond="rg"
+funBrewInstall $cli_commond 0
+#tmux
+cli_commond="tmux"
+funBrewInstall $cli_commond 0
+
+#=================配置======================
+#首先把积攒的配置包拿下来
+git clone git@github.com:BerwinJoule/config.git "$HOME/config"
+git clone git@github.com:BerwinJoule/bin_rc.git "$HOME/bin_rc"
+#进行配置
+#profile
+ln -s $HOME/config/profile $HOME/.profile
+ln -s $HOME/config/vimrc $HOME/.vimrc
+ln -s $HOME/config/zshrc $HOME/.zshrc
+
+#=================Source====================
+if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ] ; then
+    echo "Source SdkMan"
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+fi
+
